@@ -3,7 +3,7 @@
 ---
 
 ### 1. 프로젝트 주제
->  **[프로젝트 게임]() 커뮤니티 사이트 제작**
+>  **[프로젝트 게임](https://play.google.com/store/apps/details?id=com.DefaultCompany.Team_Project) 커뮤니티 사이트 제작**
 >  - Jwt를 이용한 회원 관리
 >  - CRUD 게시판 (이미지, 게시글)
 >  - jpa specification를 이용한 검색 구현
