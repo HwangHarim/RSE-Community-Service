@@ -77,8 +77,9 @@ public class BoardController {
 
     @ApiOperation("board 검색")
     @GetMapping(value = "/{id}")
-    public ResponseEntity<ResponseDto> getBoard(@PathVariable("id") Long id){
-       ReadBoardResponse board = boardService.findBoard(id);
+    public ResponseEntity<ResponseDto> getBoard(@PathVariable("id") Long id,
+        @AuthMember LoggedInMember loggedInMember){
+       ReadBoardResponse board = boardService.findBoard(id, loggedInMember);
         return responseHandler.toResponseEntity(
             ResponseMessage.READ_BOARD_SUCCESS,
             board
@@ -88,8 +89,9 @@ public class BoardController {
     @ApiOperation("board 수정")
     @PatchMapping(value = "/{id}")
     public ResponseEntity<ResponseDto> updateBoard(@PathVariable("id") Long id,
-        @RequestBody UpdateBoardRequest updateBoardRequest){
-        boardService.updateBoard(id, updateBoardRequest);
+        @RequestBody UpdateBoardRequest updateBoardRequest,
+        @AuthMember LoggedInMember loggedInMember){
+        boardService.updateBoard(id, loggedInMember, updateBoardRequest);
         return responseHandler.toResponseEntity(
             ResponseMessage.UPDATE_BOARD_SUCCESS,
             "board 수정이 완료 되었습니다."
@@ -98,8 +100,10 @@ public class BoardController {
 
     @ApiOperation("board 삭제")
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<ResponseDto> deleteBoard(@PathVariable("id") Long id) {
-      boardService.deleteBoard(id);
+    public ResponseEntity<ResponseDto> deleteBoard(
+        @PathVariable("id") Long id,
+        @AuthMember LoggedInMember loggedInMember) {
+      boardService.deleteBoard(id, loggedInMember);
       return responseHandler.toResponseEntity(
           ResponseMessage.DELETE_BOARD_SUCCESS,
           "board 삭제 완료 되었습니다."
