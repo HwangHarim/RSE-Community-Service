@@ -37,6 +37,7 @@ public class Comment extends BaseTime {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Board board;
 
+    private String username;
     @Column(columnDefinition = "Long default 0", nullable = false)
     private Long likeViews;
 

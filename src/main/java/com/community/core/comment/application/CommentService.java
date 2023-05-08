@@ -5,7 +5,7 @@ import com.community.core.board.infrastructure.BoardRepository;
 import com.community.core.comment.domain.Comment;
 import com.community.core.comment.dto.request.CreateCommentRequest;
 import com.community.core.comment.dto.request.UpdateCommentRequest;
-import com.community.core.comment.dto.response.ReadCommentRequest;
+import com.community.core.comment.dto.response.ReadCommentResponse;
 import com.community.core.comment.infrastructure.CommentRepository;
 import com.community.core.error.dto.ErrorMessage;
 import com.community.core.error.exception.board.NotFindBoardException;
@@ -25,7 +25,7 @@ public class CommentService {
     private final BoardRepository boardRepository;
 
     @Transactional
-    public void createComment(Long id, CreateCommentRequest createCommentRequest){
+    public void createComment(Long id,LoggedInMember loggedInMember, CreateCommentRequest createCommentRequest){
         Board board = boardRepository.findById(id)
             .orElseThrow(()-> {
                 throw new NotFindBoardException(ErrorMessage.NOT_FIND_ID_BOARD);
@@ -33,6 +33,7 @@ public class CommentService {
         board.addComment(commentRepository.save(
             Comment.builder()
                 .content(createCommentRequest.getContent())
+                .username(loggedInMember.getUserName())
                 .likeViews(board.getLikeCount())
                 .board(board)
                 .build()
@@ -86,27 +87,38 @@ public class CommentService {
 
 
     @Transactional
-    public List<ReadCommentRequest> getComments(Long boardId) {
+    public List<ReadCommentResponse> getComments(Long boardId, LoggedInMember loggedInMember) {
         List<Comment> comments = commentRepository.findAllByBoardId(boardId);
-        List<ReadCommentRequest> commentRequests = new ArrayList<>();
+        List<ReadCommentResponse> commentRequests = new ArrayList<>();
 
         comments.forEach(s -> commentRequests.add(
-            ReadCommentRequest.builder()
+            ReadCommentResponse.builder()
                 .id(s.getId())
                 .boardId(s.getBoard().getId())
+                .userName(loggedInMember.getUserName())
                 .comment(s.getContent())
+                .mine(false)
                 .likeView(s.getLikeViews())
                 .build()
         ));
+
+        for(ReadCommentResponse x : commentRequests){
+            if(x.getUserName().equals(loggedInMember.getUserName())){
+                x.setMine(true);
+            }
+        }
+
     return commentRequests;
     }
 
     @Transactional
-    public void deleteComment(Long commentId) {
+    public void deleteComment(Long commentId, LoggedInMember loggedInMember) {
         Comment comment = commentRepository.findById(commentId)
             .orElseThrow(()-> {
             throw new NotFindBoardException(ErrorMessage.NOT_FIND_ID_BOARD);
         });
-        commentRepository.deleteById(comment.getId());
+        if(Objects.equals(loggedInMember.getUserName(), comment.getUsername())){
+            commentRepository.deleteById(comment.getId());
+        }
     }
 }
